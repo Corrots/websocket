@@ -1,2 +1,2 @@
 # socket
-Golang websocket mini framework
+Golang websocket mini client
