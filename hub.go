@@ -40,7 +40,13 @@ func (h *hub) run() {
 		case m := <-h.broadcast:
 			h.rwmutex.Lock()
 			for s := range h.sessions {
-				s.sendToChan(m)
+				if m.filter != nil {
+					if m.filter(s) {
+						s.sendToChan(m)
+					}
+				} else {
+					s.sendToChan(m)
+				}
 			}
 			h.rwmutex.Unlock()
 		case m := <-h.exit:

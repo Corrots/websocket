@@ -24,15 +24,5 @@ func main() {
 		fmt.Println(m.Broadcast(msg))
 	})
 
-	//s := slice{1, 2, 3, 4, 5, 6, 7}
-	//s.delete(2)
-	//fmt.Println(s)
-
 	fmt.Println("err: ", router.Run(":8080"))
 }
-
-//type slice []int
-//
-//func (s *slice) delete(index int) {
-//	*s = append((*s)[:index], (*s)[index+1:]...)
-//}

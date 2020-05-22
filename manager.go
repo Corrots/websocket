@@ -14,6 +14,8 @@ type handleSessionFunc func(*Session)
 type HandleErrorFunc func(*Session, error)
 type HandleCloseFunc func(code int, text string) error
 
+var errInstanceClosed = errors.New("manager instance is closed")
+
 type Manager struct {
 	Config                   *Config
 	Upgrader                 *websocket.Upgrader
@@ -129,15 +131,30 @@ func (m *Manager) HandleRequestWithKeys(w http.ResponseWriter, r *http.Request, 
 
 func (m *Manager) Broadcast(msg []byte) error {
 	if m.hub.closed() {
-		return errors.New("manager instance is closed")
+		return errInstanceClosed
 	}
 	m.hub.broadcast <- &envelope{t: websocket.TextMessage, msg: msg}
 	return nil
 }
 
+func (m *Manager) BroadcastFilter(msg []byte, fn func(*Session) bool) error {
+	if m.hub.closed() {
+		return errInstanceClosed
+	}
+	m.hub.broadcast <- &envelope{t: websocket.TextMessage, msg: msg, filter: fn}
+	return nil
+}
+
+func (m *Manager) BroadcastOthers(msg []byte, s *Session) error {
+	return m.BroadcastFilter(msg, func(q *Session) bool {
+		return s != q
+	})
+
+}
+
 func (m *Manager) BroadcastMultiple(msg []byte, sessions []Session) error {
 	if m.hub.closed() {
-		return errors.New("manager instance is closed")
+		return errInstanceClosed
 	}
 	for _, sess := range sessions {
 		err := sess.SendWithText(msg)
@@ -150,7 +167,7 @@ func (m *Manager) BroadcastMultiple(msg []byte, sessions []Session) error {
 
 func (m *Manager) BroadcastBinary(msg []byte) error {
 	if m.hub.closed() {
-		return errors.New("manager instance is closed")
+		return errInstanceClosed
 	}
 	m.hub.broadcast <- &envelope{t: websocket.BinaryMessage, msg: msg}
 	return nil
@@ -158,7 +175,7 @@ func (m *Manager) BroadcastBinary(msg []byte) error {
 
 func (m *Manager) Close() error {
 	if m.hub.closed() {
-		return errors.New("manager instance is already closed")
+		return errInstanceClosed
 	}
 	m.hub.exit <- &envelope{t: websocket.CloseMessage, msg: []byte{}}
 	return nil

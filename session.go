@@ -22,14 +22,14 @@ type Session struct {
 
 func (s *Session) sendToSocket(msg *envelope) error {
 	if s.isClosed() {
-		return errors.New("tried to send to a isClosed session")
+		return errors.New("tried to send to a closed session")
 	}
 	return s.conn.WriteMessage(msg.t, msg.msg)
 }
 
 func (s *Session) readFromSocket() {
 	if s.isClosed() {
-		s.manager.errorHandler(s, errors.New("tried to read from a isClosed session"))
+		s.manager.errorHandler(s, errors.New("tried to read from a closed session"))
 		return
 	}
 
@@ -50,7 +50,7 @@ func (s *Session) readFromSocket() {
 
 func (s *Session) sendToChan(message *envelope) {
 	if s.isClosed() {
-		s.manager.errorHandler(s, errors.New("session is isClosed"))
+		s.manager.errorHandler(s, errors.New("session is closed"))
 		return
 	}
 	select {
@@ -79,7 +79,7 @@ func (s *Session) SendCloseWithMsg(msg []byte) error {
 
 func (s *Session) send(message *envelope) error {
 	if s.isClosed() {
-		return errors.New("session is isClosed")
+		return errors.New("session is closed")
 	}
 	s.output <- message
 	return nil
