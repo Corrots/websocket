@@ -24,5 +24,5 @@ func main() {
 		fmt.Println(m.Broadcast(msg))
 	})
 
-	fmt.Println("err: ", router.Run(":8080"))
+	router.Run(":8080")
 }
