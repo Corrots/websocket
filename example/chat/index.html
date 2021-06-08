@@ -21,21 +21,23 @@
 </center>
 
 <script>
-      var url = "ws://" + window.location.host + "/ws";
-      var ws = new WebSocket(url);
-      var name = "Guest" + Math.floor(Math.random() * 1000);
+    const url = "ws://" + window.location.host + "/ws";
+    const ws = new WebSocket(url);
+    const name = "Guest" + Math.floor(Math.random() * 1000);
 
-      var chat = document.getElementById("chat");
-      var text = document.getElementById("text");
+    const chat = document.getElementById("chat");
+    const text = document.getElementById("text");
 
-      var now = function () {
-        var iso = new Date().toISOString();
+    const now = function () {
+        const iso = new Date().toISOString();
         return iso.split("T")[1].split(".")[0];
-      };
+    };
 
-      ws.onmessage = function (msg) {
-        var line =  now() + " " + msg.data + "\n";
-        chat.innerText += line;
+    ws.onmessage = function (msg) {
+        if (msg.data !== "") {
+            const line =  now() + " " + msg.data + "\n";
+            chat.innerText += line;
+        }
       };
 
       text.onkeydown = function (e) {

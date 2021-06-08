@@ -1,28 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/corrots/socket"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func main() {
-	router := gin.Default()
+	r := gin.Default()
 	m := socket.New()
+	defer m.Close()
 
-	router.GET("/", func(c *gin.Context) {
-		http.ServeFile(c.Writer, c.Request, "index.html")
+	r.GET("/", func(c *gin.Context) {
+		r.LoadHTMLFiles("index.html")
+		//http.ServeFile(c.Writer, c.Request, "index.html")
 	})
 
-	router.GET("/ws", func(c *gin.Context) {
+	r.GET("/ws", func(c *gin.Context) {
 		m.HandleRequest(c.Writer, c.Request)
 	})
 
 	m.HandleMessage(func(s *socket.Session, msg []byte) {
-		fmt.Println(m.Broadcast(msg))
+		if err := m.Broadcast(msg); err != nil {
+			log.Fatalf("broadcast message err: %v\n", err)
+		}
 	})
 
-	router.Run(":8080")
+	r.Run(":8080")
 }
