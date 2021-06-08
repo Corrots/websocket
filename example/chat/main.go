@@ -12,8 +12,7 @@ func main() {
 	defer m.Close()
 
 	r.GET("/", func(c *gin.Context) {
-		r.LoadHTMLFiles("index.html")
-		//http.ServeFile(c.Writer, c.Request, "index.html")
+		http.ServeFile(c.Writer, c.Request, "index.html")
 	})
 
 	r.GET("/ws", func(c *gin.Context) {
