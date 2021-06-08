@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/corrots/socket"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 func main() {
